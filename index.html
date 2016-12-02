@@ -1,72 +1,212 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="REST API integration and design summary : github pages">
+    <title>REST API design methods summary from work experience  by TianyiLu</title>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>REST API integration and design summary</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
-
   <body>
+    <div class="wrapper">
+      <header>
+        <h1>REST API design methods summary from work experience </h1>
+        <p>By Tovi</p>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/TianyiLu/blog">View on GitHub</a>
+        <p class="view"><a href="https://github.com/TianyiLu/blog">View the Project on GitHub <small>TianyiLu/blog</small></a></p>
 
-          <h1 id="project_title">REST API integration and design summary</h1>
-          <h2 id="project_tagline">github pages</h2>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/TianyiLu/blog/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/TianyiLu/blog/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+        <ul>
+          <li><a href="https://github.com/TianyiLu/blog/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/TianyiLu/blog/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/TianyiLu/blog">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
         <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+<a id="写在前面" class="anchor" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>写在前面</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p>
-
-<h3>
-<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Designer Templates</h3>
-
-<p>We’ve crafted some handsome templates for you to use. Go ahead and click 'Continue to layouts' to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved.</p>
+<p>从入职以来的这一段时间，工作主要集中在对接CDN provider的API上面，这里总结一些在工作中积累的REST API设计的经验，可以作为未来的潜在需求的参考</p>
 
 <h3>
-<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating pages manually</h3>
+<a id="复用" class="anchor" href="#%E5%A4%8D%E7%94%A8" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>复用</h3>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>REST API 除了颠覆了以往对于API调用的设计模式外，个人认为REST API最大的贡献是可以复用。具体来说，基于Http request的REST API，每条都可以有GET/POST/PUT/DELETE等方法，因此同样的语句格式，使用不同的request method，即可设计为完全不同的目的。不同的http request method本质上没有区别，设计的目的本身就是为了粗分类，如GET方法也完全可以带request body，只是常规的理解里GET是不带body的。</p>
+
+<p>这里举一个对于节点（domain）操作的例子：
+GET    可以设计为获取节点的信息；
+POST    可以设计为创建新节点；
+PUT    可以设计为更新节点状态、配置信息；
+DELETE    可以设置为删除节点。</p>
+
+<p>实践中尽管多数API都同时对几种方法做出支持，但是从易于理解和管理的角度上来讲，我建议每一条API的一种方法只对应一种含义。像同时支持GET/POST表示相同含义的方法，实际上是造成了重复和浪费。</p>
 
 <h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<a id="响应状态码和错误码设计" class="anchor" href="#%E5%93%8D%E5%BA%94%E7%8A%B6%E6%80%81%E7%A0%81%E5%92%8C%E9%94%99%E8%AF%AF%E7%A0%81%E8%AE%BE%E8%AE%A1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>响应状态码和错误码设计</h3>
 
-<p>You can @mention a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor’s GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>为了迅速的对HTTP Response做出判断，响应状态建议可以分成三类：</p>
+
+<ol>
+<li><p>即时成功</p></li>
+<li><p>异步执行</p></li>
+<li><p>请求失败</p></li>
+</ol>
+
+<p>即时成功的操作一般都是查询操作，建议使用状态码200和201，两种状态码对应状态并不相同，RFC 2616文件定义如下：</p>
+
+<h5>
+<a id="200-ok" class="anchor" href="#200-ok" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>200 OK</h5>
+
+<p>The request has succeeded. The information returned with the response
+   is dependent on the method used in the request, for example:
+   GET    an entity corresponding to the requested resource is sent in
+          the response;
+   HEAD   the entity-header fields corresponding to the requested
+          resource are sent in the response without any message-body;
+   POST   an entity describing or containing the result of the action;</p>
+
+<h5>
+<a id="201-created" class="anchor" href="#201-created" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>201 Created</h5>
+
+<p>The request has been fulfilled and resulted in a new resource being
+   created. The newly created resource can be referenced by the URI(s)
+   returned in the entity of the response, with the most specific URI
+   for the resource given by a Location header field. The response
+   SHOULD include an entity containing a list of resource
+   characteristics and location(s) from which the user or user agent can
+   choose the one most appropriate. The entity format is specified by
+   the media type given in the Content-Type header field. The origin
+   server MUST create the resource before returning the 201 status code.
+   If the action cannot be carried out immediately, the server SHOULD
+   respond with 202 (Accepted) response instead.
+   A 201 response MAY contain an ETag response header field indicating
+   the current value of the entity tag for the requested variant just
+   created.</p>
+
+<p>根据上述解释，不难看出，直接在返回值中携带数据的response，应该使用200；返回给用户链接，如相关下载链接的，应该使用201.</p>
+
+<p>异步执行的操作多数是需要服务器花时间进行运算的操作，如服务器缓存刷新，创建、删除、备份等操作，这一类的操作的特点是应立即让client端知道该请求是否已成功生成，且不可以长时间占用链接。这类API建议使用202，定义如下：</p>
+
+<h5>
+<a id="202-accepted" class="anchor" href="#202-accepted" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>202 Accepted</h5>
+
+<p>The request has been accepted for processing, but the processing has
+   not been completed.  The request might or might not eventually be
+   acted upon, as it might be disallowed when processing actually takes
+   place. There is no facility for re-sending a status code from an
+   asynchronous operation such as this.
+   The 202 response is intentionally non-committal. Its purpose is to
+   allow a server to accept a request for some other process (perhaps a
+   batch-oriented process that is only run once per day) without
+   requiring that the user agent's connection to the server persist
+   until the process is completed. The entity returned with this
+   response SHOULD include an indication of the request's current status
+   and either a pointer to a status monitor or some estimate of when the
+   user can expect the request to be fulfilled.</p>
+
+<p>对于请求失败的操作，建议统一格式，并进行分类，响应状态码作为粗分类（如4xx），在response body中设计自定义细分类码，并明确发生错误的请求信息和位置，最后给出具体错误信息。对于错误信息要补充一句，错误信息不怕给出的多，最怕给出的少。给出的多可以帮助程序员判断错误位置，而给出的少对于一些需要快速确定错误位置的情景，简直是灾难性的。</p>
+
+<p>这里给出一个简单的失败返回值样例：</p>
+
+<p>Response Code : 503 Forbidden</p>
+
+<p>Body:</p>
+
+<p>Error Code: AuthenticationFailure</p>
+
+<p>Error Type: Client</p>
+
+<p>Error Message: The signature got at the server is xxxxxxxx, which is incorrect. Please check your signature algorithm.</p>
+
+<p>Error Request Id:  1b1736c7-72f8-467b-9f48-a0280833b8df</p>
 
 <h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
+<a id="参数设计" class="anchor" href="#%E5%8F%82%E6%95%B0%E8%AE%BE%E8%AE%A1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>参数设计</h3>
 
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+<p>简单精确的参数设计是使REST API用户体验提升最重要的手段，这里总结3点设计上要点供参考：</p>
+
+<h5>
+<a id="1-数据一致" class="anchor" href="#1-%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>1. 数据一致</h5>
+
+<p>这指对于同样意义的值，表现的方法要设计为同样的。比如对时间的操作，需要统一格式，如YYYY-MM-DD:hh:mm:ss ZZZ，或使用Unix epoch time，这样用户看到类似的数据就可以直接联想到是时间参数。不要使用几种不同的格式，如不同格式的时间。另，切忌不要近似格式！！如，API最后的使用者多数是机器，统一为一种格式就好，很多时候没必要考虑那么多兼容性问题，比如格式，完全可以统一精确到秒，不必要为了兼容性考虑同时兼容日、时、分、秒，这样反而容易带来误差。</p>
+
+<h5>
+<a id="2-格式一致" class="anchor" href="#2-%E6%A0%BC%E5%BC%8F%E4%B8%80%E8%87%B4" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2. 格式一致</h5>
+
+<p>试想在设计数据模型时，谁愿意为了只差一个两个参数不同的对象去多设计一个类呢？所以，尽可能减少参数体的格式，加强参数体的可扩展性这样可以大幅度减少存储数据的类的设计量。我在工作中就遇到过这样一组体验很差的类，如下：</p>
+
+<p>Class A:
+{
+     “domainName”: ,
+     "file_list": 
+     [ 
+        {
+             "file_name": ,
+             "file_type": 
+         }<br>
+        {
+             "file_name": ,
+             "file_type": 
+         }<br>
+         {
+             "file_name": ,
+             "file_type": 
+         }
+      ]
+}</p>
+
+<p>Class B
+{
+     “domainName”: ,
+     "file_type": 
+     "file_list": [ ,,]
+    "operation_Id": 
+}</p>
+
+<p>样例不完全符合工作实际，为近似回忆。两种数据格式携带的数据内容相似，然而为了针对这样数据返回，却要设计两种完全不同的方法去兼容这两种数据格式，这无形中加大了工作量。</p>
+
+<h5>
+<a id="3-数据类型使用" class="anchor" href="#3-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BD%BF%E7%94%A8" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3. 数据类型使用</h5>
+
+<p>何时使用字符串、何时使用整型、何时使用哈希表、何时使用数组，这些都是非常值得考虑的因素。根据不同的情景，要使用更易于参数格式，会使调试过程大大加快。
+如，针对某网络流量数据，我们给出下面两种格式，数据是一样的，那么哪种格式更受人欢迎呢？</p>
+
+<p>Format A:
+Time_Stamp_List: [,,,, ... ]
+Traffic_Volumn_List: [,,,, ... ]</p>
+
+<p>Format B:
+Traffic_Data:
+{
+     : 
+     : 
+     : 
+     : 
+}</p>
+
+<p>在数据量少时，两种方式区别不大，但是当数据量大时，显而易见，B格式即减少了需要的变量名，又使得数据以一一对应的方式出现。对于处理方，查询时可以直接找到对应关系，更为方便。所以，设计时要考虑到数据规模和使用便捷性。</p>
+
+<p>总而言之，我们在参数设计上，总是希望可以用最少的参数类型，去实现最多的功能，同时又要避免所有可能产生的歧义和误差。</p>
+
+<h3>
+<a id="总结" class="anchor" href="#%E6%80%BB%E7%BB%93" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>总结</h3>
+
+<p>入职这几个月的时间以来，越来越深刻的体会到，代码设计最主要的目的是减少团队工作量，绝非给自己找更多的麻烦。代码的“智力附加值”是检验到底是攻城狮还是码农的最重要的标准，它不像科学问题那么追求出结果，但是要求“上乘品质”。
+不得不说首先要感谢老板推荐的code complete这本奇书，结合实践经验来读，的确觉得非常非常有用。从模块化到弱耦合等一系列概念从知晓到理解到慢慢能结合到实践中去，这还只是读了三分之一的体验，还有很多很多要学习的地方。
+另外工作中的学习方式也是一种很不同的体验，再没有人说这本书回去看，看完考试，都是用到的那一刻就需要你是个expert，很难做到哦！
+应该可以承担起更多的责任了，期待可以做的更好！（虽然不是很期待on call 新手大礼包2333）</p>
       </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">REST API integration and design summary maintained by <a href="https://github.com/TianyiLu">TianyiLu</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/TianyiLu">TianyiLu</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-
+    <script src="javascripts/scale.fix.js"></script>
     
-
   </body>
 </html>
